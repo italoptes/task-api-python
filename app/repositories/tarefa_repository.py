@@ -16,3 +16,15 @@ class TarefaRepository:
 
     def buscar_por_id(self, db: Session, id: int):
         return db.query(Tarefa).filter(Tarefa.id == id).first()
+
+    def atualizar(self, db: Session, tarefa: Tarefa, titulo: str, descricao: str):
+        tarefa.titulo = titulo
+        tarefa.descricao = descricao
+
+        db.commit()
+        db.refresh(tarefa)
+        return tarefa
+
+    def deletar(self, db: Session, tarefa: Tarefa):
+        db.delete(tarefa)
+        db.commit()
