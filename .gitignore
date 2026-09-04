@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+Projeto_Treinamento_Python_n8n.pdf
