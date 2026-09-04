@@ -1,0 +1,2 @@
+class TarefaNaoEncontradaException(Exception):
+    pass

@@ -1,9 +1,7 @@
-from dns.rdtypes import dnskeybase
-from dns.rdtypes import dnskeybase
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
 
-from app.models.tarefa import Tarefa
+from app.exceptions.tarefa_exceptions import TarefaNaoEncontradaException
+from app.models.tarefa import StatusTarefa, Tarefa
 from app.repositories.tarefa_repository import TarefaRepository
 
 
@@ -13,10 +11,7 @@ class TarefaService:
         self.repository = TarefaRepository()
 
     def criar(self, db: Session, titulo: str, descricao: str):
-        tarefa = Tarefa(
-            titulo=titulo,
-            descricao=descricao
-        )
+        tarefa = Tarefa(titulo=titulo,descricao=descricao,status=StatusTarefa.PENDENTE)
 
         return self.repository.salvar(db, tarefa)
 
@@ -25,30 +20,24 @@ class TarefaService:
 
     def buscar_por_id(self, db: Session, id: int):
         tarefa = self.repository.buscar_por_id(db, id)
-
         if tarefa is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Tarefa não encontrada"
-        )
+            raise TarefaNaoEncontradaException("Tarefa não encontrada")
         return tarefa
 
-    def editar_por_id(self, db: Session, id: int, titulo: str, descricao: str):
-        tarefa = self.repository.buscar_por_id(db,id)
-        if(tarefa is None):
-            raise HTTPException(
-                status_code=404,
-                detail="Tarefa não encontrada"
-            )
-        return self.repository.atualizar(db, tarefa, titulo, descricao)
+    def editar_por_id(self,  db: Session,id: int, titulo: str,descricao: str ):
+        tarefa = self.repository.buscar_por_id(db, id)
+        if tarefa is None:
+            raise TarefaNaoEncontradaException("Tarefa não encontrada")
+        return self.repository.atualizar(db,tarefa,titulo,descricao)
+
+    def alterar_status(self, db: Session,id: int,status: StatusTarefa ):
+        tarefa = self.repository.buscar_por_id(db, id)
+        if tarefa is None:
+            raise TarefaNaoEncontradaException( "Tarefa não encontrada")
+        return self.repository.alterar_status(db,tarefa,status)
 
     def deletar(self, db: Session, id: int):
         tarefa = self.repository.buscar_por_id(db, id)
-
         if tarefa is None:
-            raise HTTPException(
-                status_code=404,
-                detail="Tarefa não encontrada"
-            )       
-
+            raise TarefaNaoEncontradaException("Tarefa não encontrada")
         self.repository.deletar(db, tarefa)

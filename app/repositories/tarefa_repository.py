@@ -28,3 +28,9 @@ class TarefaRepository:
     def deletar(self, db: Session, tarefa: Tarefa):
         db.delete(tarefa)
         db.commit()
+
+    def alterar_status(self, db: Session, tarefa: Tarefa, status):
+        tarefa.status = status
+        db.commit()
+        db.refresh(tarefa)
+        return tarefa
